@@ -1,11 +1,9 @@
 package com.example.eastechtest.exception.handler;
 
-import com.example.eastechtest.exception.ApiError;
-import com.example.eastechtest.exception.BlankStringException;
-import com.example.eastechtest.exception.DataNotFoundException;
-import com.example.eastechtest.exception.MissingParameterException;
+import com.example.eastechtest.exception.*;
 import com.example.eastechtest.exception.helper.ResponseEntityBuilder;
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -65,6 +63,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntityBuilder.build(err);
     }
 
+    @ExceptionHandler(IdentityFoundInRequestException.class)
+    public ResponseEntity<Object> handleIdentityInRequestFoundException(IdentityFoundInRequestException ex) {
+        List<String> details = new ArrayList<>();
+        details.add(ex.getMessage());
+
+        ApiError err = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST,
+                "ID is found in the request" ,
+                details);
+
+        return ResponseEntityBuilder.build(err);
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Object> handleJsonFormatInvalid(ConstraintViolationException ex) {
         List<String> details = new ArrayList<>();
@@ -85,13 +97,31 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             HttpHeaders headers,
             HttpStatusCode status,
             WebRequest request) {
-        List<String> details = new ArrayList<String>();
+        List<String> details = new ArrayList<>();
         details.add(ex.getMessage());
 
         ApiError err = new ApiError(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST,
                 "Invalid JSON request" ,
+                details);
+
+        return ResponseEntityBuilder.build(err);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleTypeMismatch(
+            TypeMismatchException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
+        List<String> details = new ArrayList<>();
+        details.add(ex.getMessage());
+
+        ApiError err = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST,
+                "Invalid User ID" ,
                 details);
 
         return ResponseEntityBuilder.build(err);

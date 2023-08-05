@@ -2,6 +2,7 @@ package com.example.eastechtest.service;
 
 import com.example.eastechtest.exception.BlankStringException;
 import com.example.eastechtest.exception.DataNotFoundException;
+import com.example.eastechtest.exception.IdentityFoundInRequestException;
 import com.example.eastechtest.exception.MissingParameterException;
 import com.example.eastechtest.model.User;
 import com.example.eastechtest.repository.FormRepository;
@@ -25,6 +26,8 @@ public class FormService {
             throw new MissingParameterException("First name or last name is missing");
         if(user.getFirstname().isBlank() || user.getLastname().isBlank())
             throw new BlankStringException("Both first name and last name cannot be blank");
-        formRepository.save(user);
+        if(user.getId() != null)
+            throw new IdentityFoundInRequestException("ID should not be in the request");
+        formRepository.insert(user.getFirstname(), user.getLastname());
     }
 }
